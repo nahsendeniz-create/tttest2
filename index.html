@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tischtennis-Analyse</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 800px;
+        }
+        .bg-brand-red {
+            background-color: #dc2626;
+        }
+        .bg-brand-blue {
+            background-color: #3b82f6;
+        }
+        .text-brand-red { color: #dc2626; }
+        .text-brand-blue { color: #3b82f6; }
+        .example-card {
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .example-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .favorites-list-item:hover {
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body class="p-4 flex items-center justify-center min-h-screen">
+    <div class="container mx-auto p-8 bg-white rounded-3xl shadow-2xl">
+        <h1 class="text-4xl font-extrabold text-center text-brand-red mb-4">Tischtennis-Analyse</h1>
+        <p class="text-center text-gray-600 mb-8">
+            Wählen Sie Ihr Holz und Ihren Belag, um die beste Schlägerkombination zu finden.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Holz-Auswahl -->
+            <div class="p-6 bg-gray-50 rounded-2xl shadow-inner">
+                <label for="bladeSelect" class="block text-lg font-semibold mb-2">Holz-Auswahl</label>
+                <div class="flex items-center space-x-2 mb-4">
+                    <input type="text" id="bladeSearch" placeholder="Holz suchen..." class="w-1/2 p-2 rounded-lg border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-blue transition">
+                    <select id="bladeSort" class="w-1/2 p-2 rounded-lg border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-blue transition">
+                        <option value="name">Nach Name</option>
+                        <option value="speed">Nach Geschwindigkeit</option>
+                        <option value="spin">Nach Spin</option>
+                        <option value="control">Nach Kontrolle</option>
+                        <option value="price">Nach Preis</option>
+                    </select>
+                </div>
+                <select id="bladeSelect" class="w-full p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-blue transition">
+                </select>
+            </div>
+
+            <!-- Belag-Auswahl -->
+            <div class="p-6 bg-gray-50 rounded-2xl shadow-inner">
+                <label for="rubberSelect" class="block text-lg font-semibold mb-2">Belag-Auswahl</label>
+                <div class="flex items-center space-x-2 mb-4">
+                    <input type="text" id="rubberSearch" placeholder="Belag suchen..." class="w-1/2 p-2 rounded-lg border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-blue transition">
+                    <select id="rubberSort" class="w-1/2 p-2 rounded-lg border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-blue transition">
+                        <option value="name">Nach Name</option>
+                        <option value="speed">Nach Geschwindigkeit</option>
+                        <option value="spin">Nach Spin</option>
+                        <option value="control">Nach Kontrolle</option>
+                        <option value="price">Nach Preis</option>
+                    </select>
+                </div>
+                <select id="rubberSelect" class="w-full p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-blue transition">
+                </select>
+            </div>
+        </div>
+
+        <!-- Analyse-Button -->
+        <button onclick="analyzeCombination()" class="w-full py-4 bg-brand-red text-white font-bold text-xl rounded-2xl shadow-lg hover:bg-brand-red/90 transition transform hover:scale-105">
+            Kombination analysieren
+        </button>
+        
+        <!-- Beispiel-Kombinationen -->
+        <div class="mt-8 p-6 bg-gray-100 rounded-2xl shadow-inner">
+            <h2 class="text-2xl font-bold text-center text-brand-blue mb-4">Beispiel-Kombinationen</h2>
+            <p class="text-center text-gray-600 mb-6">Klicken Sie auf ein Beispiel, um die Analyse zu sehen.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div onclick="showExampleCombination('Stiga Allround Classic', 'Donic Acuda S2')" class="example-card p-4 text-center bg-white rounded-xl shadow-md border-2 border-transparent hover:border-brand-blue">
+                    <h3 class="font-bold text-lg text-brand-blue">Maximale Kontrolle</h3>
+                    <p class="text-sm text-gray-500">Für kontrollierte Spiele.</p>
+                </div>
+                <div onclick="showExampleCombination('Butterfly Viscaria', 'Butterfly Dignics 05')" class="example-card p-4 text-center bg-white rounded-xl shadow-md border-2 border-transparent hover:border-brand-blue">
+                    <h3 class="font-bold text-lg text-brand-red">Maximale Geschwindigkeit</h3>
+                    <p class="text-sm text-gray-500">Für aggressiven Angriff.</p>
+                </div>
+                <div onclick="showExampleCombination('DHS Hurricane Long 5', 'DHS Hurricane 3 Neo')" class="example-card p-4 text-center bg-white rounded-xl shadow-md border-2 border-transparent hover:border-brand-blue">
+                    <h3 class="font-bold text-lg text-green-600">Höchster Ballbogen</h3>
+                    <p class="text-sm text-gray-500">Ideal für Topspins.</p>
+                </div>
+                <div onclick="showExampleCombination('Tibhar Fortino Pro Force', 'Andro Rasanter R53')" class="example-card p-4 text-center bg-white rounded-xl shadow-md border-2 border-transparent hover:border-brand-blue">
+                    <h3 class="font-bold text-lg text-purple-600">Niedriger Ballbogen</h3>
+                    <p class="text-sm text-gray-500">Für flache und schnelle Schläge.</p>
+                </div>
+                <div onclick="showExampleCombination('Stiga Allround Classic', 'Tibhar Evolution EL-P')" class="example-card p-4 text-center bg-white rounded-xl shadow-md border-2 border-transparent hover:border-brand-blue">
+                    <h3 class="font-bold text-lg text-gray-700">Allround-Beispiel</h3>
+                    <p class="text-sm text-gray-500">Eine ausgewogene Kombination.</p>
+                </div>
+                <div onclick="showExampleCombination('Stiga Dynasty Carbon Xu Xin', 'Butterfly Dignics 05')" class="example-card p-4 text-center bg-white rounded-xl shadow-md border-2 border-transparent hover:border-brand-blue">
+                    <h3 class="font-bold text-lg text-green-600">Maximaler Spin</h3>
+                    <p class="text-sm text-gray-500">Für ultimativen Spin.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analyse-Ergebnis -->
+        <div id="result" class="mt-8 p-6 bg-gray-50 rounded-2xl shadow-inner hidden">
+            <h2 class="text-2xl font-bold text-center text-brand-blue mb-4">Analyse-Ergebnis</h2>
+            
+            <div id="metricsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 text-center">
+                <!-- Metriken werden von JS hinzugefügt -->
+            </div>
+            
+            <div class="mt-6 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                <button onclick="addToFavorites()" class="flex-1 py-3 bg-green-500 text-white font-bold rounded-2xl shadow-lg hover:bg-green-600 transition">
+                    <i class="fas fa-star mr-2"></i> Zu Favoriten hinzufügen
+                </button>
+                <a id="storeLink" href="#" target="_blank" class="flex-1 py-3 bg-gray-700 text-white text-center font-bold rounded-2xl shadow-lg hover:bg-gray-800 transition">
+                    <i class="fas fa-shopping-cart mr-2"></i> Online kaufen
+                </a>
+            </div>
+
+            <div class="mt-6 p-4 rounded-xl bg-gray-100 border border-gray-200">
+                <p class="font-semibold text-gray-700">Kommentar zum Spielstil:</p>
+                <p id="commentary" class="mt-2 text-gray-800 leading-relaxed"></p>
+            </div>
+
+            <!-- Flugkurven-Visualisierung -->
+            <div class="mt-6 p-4 rounded-xl bg-gray-100 border-gray-200">
+                <p class="font-semibold text-gray-700 mb-4">Ball-Flugkurve:</p>
+                <div class="w-full aspect-video border border-gray-300 rounded-lg relative overflow-hidden bg-white">
+                    <canvas id="trajectoryCanvas" class="w-full h-full"></canvas>
+                    <div class="absolute bottom-0 left-0 w-1/2 h-2 bg-gray-400"></div>
+                    <div class="absolute bottom-0 right-0 w-1/2 h-2 bg-gray-400"></div>
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0.5 h-16 bg-gray-700"></div>
+                </div>
+                 <div class="mt-4 text-center text-sm font-semibold text-gray-600">
+                    <span class="inline-block w-4 h-1 bg-brand-blue rounded-full mr-2"></span> Ihre Wahl |
+                    <span class="inline-block w-4 h-1 border-b-2 border-dashed border-gray-500 mr-2"></span> Allround-Referenz
+                </div>
+            </div>
+        </div>
+
+        <!-- Favoriten-Liste -->
+        <div id="favorites-section" class="mt-8 p-6 bg-gray-100 rounded-2xl shadow-inner hidden">
+            <h2 class="text-2xl font-bold text-center text-brand-blue mb-4">Meine Favoriten</h2>
+            <ul id="favorites-list" class="space-y-4"></ul>
+            <button id="compare-button" onclick="compareFavorites()" class="w-full mt-4 py-3 bg-purple-500 text-white font-bold rounded-2xl shadow-lg hover:bg-purple-600 transition hidden">
+                <i class="fas fa-balance-scale mr-2"></i> Favoriten vergleichen
+            </button>
+        </div>
+
+        <!-- Vergleichstabelle -->
+        <div id="comparison-table-container" class="mt-8 p-6 bg-white rounded-3xl shadow-2xl hidden">
+            <h2 class="text-2xl font-bold text-center text-brand-blue mb-4">Kombinationen im Vergleich</h2>
+            <table class="w-full table-auto border-collapse">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="p-2 border border-gray-300 rounded-tl-lg">Kombination</th>
+                        <th class="p-2 border border-gray-300">Geschwindigkeit</th>
+                        <th class="p-2 border border-gray-300">Spin</th>
+                        <th class="p-2 border border-gray-300">Kontrolle</th>
+                        <th class="p-2 border border-gray-300">Preis (€)</th>
+                        <th class="p-2 border border-gray-300 rounded-tr-lg">Gewicht (g)</th>
+                    </tr>
+                </thead>
+                <tbody id="comparison-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const blades = [
+            // Butterfly Hölzer
+            { name: "Butterfly Viscaria", speed: 9.7, control: 8.0, spin: 8.5, type: 'OFF', construction: 'Outer-Carbon', price: 180, weight: 90 },
+            { name: "Butterfly Timo Boll ALC", speed: 9.5, control: 8.5, spin: 8.8, type: 'OFF', construction: 'Inner-Carbon', price: 190, weight: 86 },
+            { name: "Butterfly Timo Boll Spirit", speed: 9.5, control: 8.8, spin: 8.5, type: 'OFF', construction: 'Inner-Carbon', price: 160, weight: 88 },
+            { name: "Butterfly Harimoto Tomokazu ALC", speed: 9.8, control: 7.8, spin: 9.0, type: 'OFF+', construction: 'Inner-Carbon', price: 210, weight: 89 },
+            { name: "Butterfly Innerforce Layer ALC", speed: 9.4, control: 8.6, spin: 8.7, type: 'OFF-', construction: 'Inner-Carbon', price: 200, weight: 85 },
+            { name: "Butterfly Innerforce ZLC", speed: 9.6, control: 8.4, spin: 9.0, type: 'OFF', construction: 'Inner-Carbon', price: 240, weight: 87 },
+            { name: "Butterfly Jun Mizutani ZLC", speed: 9.7, control: 8.2, spin: 9.1, type: 'OFF+', construction: 'Outer-Carbon', price: 250, weight: 88 },
+            { name: "Butterfly Amultart", speed: 9.8, control: 7.5, spin: 8.9, type: 'OFF+', construction: 'Outer-Carbon', price: 200, weight: 89 },
+            { name: "Butterfly Timo Boll ZLF", speed: 8.8, control: 9.0, spin: 8.8, type: 'ALL+', construction: 'Inner-ZLF', price: 200, weight: 84 },
+            { name: "Butterfly Korbel SK7", speed: 8.7, control: 8.8, spin: 8.7, type: 'OFF-', construction: '7-Ply', price: 110, weight: 92 },
+            { name: "Butterfly Primorac Carbon", speed: 9.9, control: 7.7, spin: 8.5, type: 'OFF+', construction: 'Outer-Carbon', price: 150, weight: 88 },
+            { name: "Butterfly Gergely", speed: 9.5, control: 8.0, spin: 8.2, type: 'OFF', construction: 'Carbon', price: 130, weight: 95 },
+            { name: "Butterfly Michael Maze ALC", speed: 9.5, control: 8.5, spin: 8.8, type: 'OFF', construction: 'Inner-Carbon', price: 190, weight: 86 },
+            // Donic Hölzer
+            { name: "Donic Ovtcharov True Carbon", speed: 9.6, control: 8.4, spin: 8.7, type: 'OFF', construction: 'Inner-Carbon', price: 120, weight: 90 },
+            { name: "Donic Persson Power Carbon", speed: 9.2, control: 8.8, spin: 9.0, type: 'OFF', construction: 'Outer-Carbon', price: 100, weight: 90 },
+            { name: "Donic Baum Esprit", speed: 8.8, control: 9.2, spin: 8.9, type: 'ALL+', construction: '5-Ply', price: 75, weight: 85 },
+            { name: "Donic Dima Ovtcharov Senso V1", speed: 9.0, control: 9.0, spin: 9.0, type: 'OFF', construction: '5-Ply', price: 95, weight: 88 },
+            { name: "Donic Waldner Senso Carbon", speed: 9.3, control: 8.7, spin: 9.1, type: 'OFF', construction: 'Inner-Carbon', price: 105, weight: 89 },
+            { name: "Donic Original Allround", speed: 7.5, control: 9.5, spin: 8.5, type: 'ALL', construction: '5-Ply', price: 50, weight: 82 },
+            { name: "Donic Carbotec 3000", speed: 9.0, control: 8.5, spin: 8.8, type: 'OFF', construction: 'Carbon', price: 60, weight: 90 },
+            // Tibhar Hölzer
+            { name: "Tibhar Samsonov Force Pro Black Edition", speed: 9.5, control: 8.0, spin: 8.5, type: 'OFF+', construction: '7-Ply', price: 100, weight: 88 },
+            { name: "Tibhar Stratus Power Wood", speed: 8.5, control: 9.0, spin: 9.0, type: 'ALL+', construction: '5-Ply', price: 70, weight: 85 },
+            { name: "Tibhar Fortino Pro Force", speed: 9.8, control: 7.5, spin: 8.8, type: 'OFF+', construction: 'Outer-Carbon', price: 140, weight: 89 },
+            { name: "Tibhar Shang Kun Hybrid ZC", speed: 9.7, control: 8.0, spin: 9.2, type: 'OFF+', construction: 'Composite', price: 180, weight: 88 },
+            { name: "Tibhar Carbon Shot", speed: 9.4, control: 8.6, spin: 9.0, type: 'OFF', construction: 'Carbon', price: 120, weight: 87 },
+            { name: "Tibhar Balsa SGS", speed: 8.2, control: 9.3, spin: 8.5, type: 'ALL-', construction: 'Balsa', price: 70, weight: 80 },
+            { name: "Tibhar Samsonov Pure Wood", speed: 8.5, control: 9.1, spin: 8.8, type: 'ALL+', construction: '5-Ply', price: 60, weight: 85 },
+            // Andere Hölzer
+            { name: "Yasaka Ma Lin Carbon", speed: 9.3, control: 8.6, spin: 8.9, type: 'OFF', construction: 'Inner-Carbon', price: 105, weight: 88 },
+            { name: "Yasaka Sweden Extra", speed: 7.5, control: 9.5, spin: 8.5, type: 'ALL', construction: '5-Ply', price: 50, weight: 84 },
+            { name: "Stiga Allround Classic", speed: 6.5, control: 9.5, spin: 8.0, type: 'ALL', construction: '5-Ply', price: 40, weight: 82 },
+            { name: "Stiga Carbonado 190", speed: 10.0, control: 7.0, spin: 9.0, type: 'OFF+', construction: 'Outer-Carbon', price: 150, weight: 92 },
+            { name: "Stiga Dynasty Carbon Xu Xin", speed: 9.9, control: 8.0, spin: 9.2, type: 'OFF+', construction: 'Inner-Carbon', price: 200, weight: 89 },
+            { name: "Andro Treiber H", speed: 9.6, control: 8.1, spin: 9.4, type: 'OFF', construction: 'Inner-Carbon', price: 150, weight: 90 },
+            { name: "Andro Ligna All+", speed: 7.8, control: 9.2, spin: 8.8, type: 'ALL+', construction: '5-Ply', price: 130, weight: 86 },
+            { name: "Nittaku Acoustic", speed: 8.5, control: 9.0, spin: 8.8, type: 'ALL+', construction: '5-Ply', price: 160, weight: 85 },
+            { name: "DHS Hurricane Long 5", speed: 9.8, control: 7.5, spin: 9.6, type: 'OFF+', construction: '5-Ply', price: 180, weight: 92 },
+            { name: "Victas Koji Matsushita", speed: 6.0, control: 9.7, spin: 8.5, type: 'DEF', construction: '5-Ply', price: 135, weight: 95 },
+            { name: "Joola Aruna Off", speed: 9.1, control: 8.9, spin: 9.1, type: 'OFF', construction: '7-Ply', price: 90, weight: 86 },
+            { name: "Joola Rossi Emotion", speed: 8.9, control: 9.0, spin: 9.2, type: 'OFF', construction: '5-Ply', price: 110, weight: 88 },
+            { name: "Xiom Vega Pro", speed: 9.3, control: 8.2, spin: 9.5, type: 'OFF+', construction: '7-Ply', price: 80, weight: 87 },
+            { name: "Xiom Stradivarius", speed: 9.5, control: 8.5, spin: 9.0, type: 'OFF', construction: 'Inner-Carbon', price: 120, weight: 89 },
+            { name: "Stiga Clipper Wood", speed: 9.2, control: 8.0, spin: 8.8, type: 'OFF', construction: '7-Ply', price: 65, weight: 90 },
+            { name: "Andro Treiber FO OFF/S", speed: 9.2, control: 8.7, spin: 9.2, type: 'OFF', construction: 'Inner-Carbon', price: 115, weight: 85 }
+        ];
+
+        const rubbers = [
+            // Butterfly Beläge
+            { name: "Butterfly Dignics 05", speed: 9.8, control: 7.8, spin: 9.9, hardness: 'Hart', price: 70, weight: 69 },
+            { name: "Butterfly Tenergy 05", speed: 9.5, control: 8.0, spin: 9.7, hardness: 'Mittel-Hart', price: 65, weight: 67 },
+            { name: "Butterfly Dignics 09c", speed: 9.5, control: 8.1, spin: 9.9, hardness: 'Hart', price: 75, weight: 72 },
+            { name: "Butterfly Dignics 64", speed: 9.9, control: 7.7, spin: 9.5, hardness: 'Hart', price: 70, weight: 68 },
+            { name: "Butterfly Dignics 80", speed: 9.7, control: 8.0, spin: 9.7, hardness: 'Mittel', price: 70, weight: 67 },
+            { name: "Butterfly Rozena", speed: 8.9, control: 8.8, spin: 9.0, hardness: 'Weich', price: 50, weight: 63 },
+            { name: "Butterfly Tenergy 64", speed: 9.8, control: 8.0, spin: 9.5, hardness: 'Mittel', price: 65, weight: 66 },
+            { name: "Butterfly Tenergy 80", speed: 9.6, control: 8.2, spin: 9.5, hardness: 'Mittel', price: 65, weight: 67 },
+            { name: "Butterfly Sriver", speed: 7.5, control: 9.0, spin: 8.5, hardness: 'Mittel', price: 30, weight: 60 },
+            // Donic Beläge
+            { name: "Donic Bluestorm Z1", speed: 9.8, control: 8.0, spin: 9.5, hardness: 'Hart', price: 52, weight: 68 },
+            { name: "Donic Bluestorm Z2", speed: 9.5, control: 8.5, spin: 9.3, hardness: 'Mittel', price: 50, weight: 66 },
+            { name: "Donic Bluestorm Z3", speed: 9.0, control: 9.0, spin: 9.0, hardness: 'Weich', price: 48, weight: 64 },
+            { name: "Donic Bluefire M1", speed: 9.7, control: 8.1, spin: 9.6, hardness: 'Hart', price: 45, weight: 68 },
+            { name: "Donic Bluefire M2", speed: 9.4, control: 8.5, spin: 9.3, hardness: 'Mittel', price: 42, weight: 66 },
+            { name: "Donic Bluefire JP01", speed: 9.5, control: 8.3, spin: 9.5, hardness: 'Hart', price: 48, weight: 67 },
+            { name: "Donic Acuda S1", speed: 9.2, control: 8.8, spin: 9.5, hardness: 'Mittel', price: 40, weight: 65 },
+            { name: "Donic Acuda S2", speed: 9.0, control: 9.0, spin: 9.3, hardness: 'Mittel', price: 40, weight: 64 },
+            { name: "Donic Acuda S3", speed: 8.8, control: 9.2, spin: 9.0, hardness: 'Weich', price: 38, weight: 62 },
+            // Tibhar Beläge
+            { name: "Tibhar Evolution MX-P", speed: 9.8, control: 7.8, spin: 9.5, hardness: 'Hart', price: 45, weight: 68 },
+            { name: "Tibhar Evolution EL-P", speed: 9.2, control: 8.5, spin: 9.2, hardness: 'Mittel', price: 40, weight: 64 },
+            { name: "Tibhar Evolution FX-P", speed: 8.8, control: 8.8, spin: 9.0, hardness: 'Weich', price: 38, weight: 62 },
+            { name: "Tibhar Evolution MX-S", speed: 9.7, control: 8.0, spin: 9.8, hardness: 'Hart', price: 48, weight: 70 },
+            { name: "Tibhar Evolution MX-D", speed: 9.9, control: 7.5, spin: 9.9, hardness: 'Hart', price: 50, weight: 71 },
+            { name: "Tibhar Hybrid K1 Pro", speed: 9.4, control: 8.0, spin: 9.8, hardness: 'Extra Hart', price: 50, weight: 70 },
+            { name: "Tibhar Aurus", speed: 9.0, control: 8.5, spin: 9.2, hardness: 'Mittel', price: 40, weight: 65 },
+            // Andere Beläge
+            { name: "Yasaka Rakza 7", speed: 9.1, control: 9.0, spin: 9.4, hardness: 'Mittel', price: 35, weight: 63 },
+            { name: "Stiga Mantra S", speed: 9.0, control: 8.5, spin: 9.3, hardness: 'Weich', price: 40, weight: 62 },
+            { name: "Joola Rhyzer 48", speed: 9.5, control: 8.0, spin: 9.6, hardness: 'Hart', price: 48, weight: 68 },
+            { name: "Xiom Omega V Pro", speed: 9.7, control: 7.9, spin: 9.7, hardness: 'Hart', price: 44, weight: 67 },
+            { name: "Andro Rasanter R53", speed: 9.9, control: 7.7, spin: 9.8, hardness: 'Hart', price: 50, weight: 70 },
+            { name: "DHS Hurricane 3 Neo", speed: 8.5, control: 9.0, spin: 9.9, hardness: 'Klebrig Hart', price: 35, weight: 72 },
+            { name: "Nittaku Fastarc G-1", speed: 9.2, control: 8.8, spin: 9.5, hardness: 'Mittel-Hart', price: 48, weight: 66 },
+            { name: "Gewo Nexxus EL Pro 48", speed: 9.3, control: 8.6, spin: 9.4, hardness: 'Mittel-Hart', price: 45, weight: 65 },
+            { name: "Victas V>15 Extra", speed: 9.5, control: 8.2, spin: 9.6, hardness: 'Hart', price: 55, weight: 66 },
+            { name: "Stiga DNA Pro H", speed: 9.6, control: 8.1, spin: 9.5, hardness: 'Hart', price: 50, weight: 68 },
+            { name: "Nittaku Moristo SP", speed: 8.8, control: 9.0, spin: 8.5, hardness: 'Mittel', price: 38, weight: 60 },
+            { name: "Joola Dynaryz ACC", speed: 9.7, control: 8.1, spin: 9.8, hardness: 'Hart', price: 50, weight: 69 },
+            { name: "Yasaka Rakza X", speed: 9.3, control: 8.7, spin: 9.7, hardness: 'Mittel-Hart', price: 40, weight: 65 },
+            { name: "Andro Hexer Duro", speed: 8.5, control: 9.1, spin: 9.0, hardness: 'Mittel-Weich', price: 38, weight: 60 },
+            { name: "Adidas P7", speed: 9.2, control: 8.5, spin: 9.1, hardness: 'Mittel', price: 45, weight: 65 },
+            { name: "Adidas Tenzone Ultra", speed: 9.4, control: 8.2, spin: 9.3, hardness: 'Mittel-Hart', price: 48, weight: 68 },
+            { name: "Palio Ak47", speed: 8.9, control: 9.2, spin: 9.4, hardness: 'Weich', price: 15, weight: 60 },
+            { name: "Sanwei T88-I", speed: 8.0, control: 9.5, spin: 9.0, hardness: 'Mittel-Weich', price: 12, weight: 58 },
+            { name: "Friendship 729", speed: 7.5, control: 9.6, spin: 8.8, hardness: 'Weich', price: 10, weight: 55 },
+            { name: "Yinhe Big Dipper", speed: 8.8, control: 8.9, spin: 9.7, hardness: 'Klebrig Hart', price: 20, weight: 68 },
+            { name: "Yinhe Moon Speed", speed: 9.1, control: 8.7, spin: 9.2, hardness: 'Mittel', price: 18, weight: 62 },
+            { name: "Loki Arthur Asia", speed: 9.5, control: 8.1, spin: 9.5, hardness: 'Hart', price: 25, weight: 67 },
+            { name: "Loki Arthur Europe", speed: 9.3, control: 8.3, spin: 9.3, hardness: 'Mittel', price: 25, weight: 65 },
+            { name: "Spinlord Marder III", speed: 8.0, control: 9.0, spin: 9.0, hardness: 'Weich', price: 28, weight: 60 },
+            { name: "Spinlord Waran", speed: 9.0, control: 8.5, spin: 8.0, hardness: 'Mittel', price: 30, weight: 62 }
+        ];
+
+        let favorites = [];
+        let animationId;
+
+        function populateSelects() {
+            const bladeSelect = document.getElementById('bladeSelect');
+            const rubberSelect = document.getElementById('rubberSelect');
+            const bladeSearch = document.getElementById('bladeSearch').value.toLowerCase();
+            const rubberSearch = document.getElementById('rubberSearch').value.toLowerCase();
+            const bladeSortBy = document.getElementById('bladeSort').value;
+            const rubberSortBy = document.getElementById('rubberSort').value;
+            
+            let filteredBlades = blades.filter(b => b.name.toLowerCase().includes(bladeSearch));
+            let filteredRubbers = rubbers.filter(r => r.name.toLowerCase().includes(rubberSearch));
+
+            filteredBlades.sort((a, b) => {
+                if (a[bladeSortBy] < b[bladeSortBy]) return -1;
+                if (a[bladeSortBy] > b[bladeSortBy]) return 1;
+                return 0;
+            });
+            filteredRubbers.sort((a, b) => {
+                if (a[rubberSortBy] < b[rubberSortBy]) return -1;
+                if (a[rubberSortBy] > b[rubberSortBy]) return 1;
+                return 0;
+            });
+
+            bladeSelect.innerHTML = '';
+            rubberSelect.innerHTML = '';
+
+            filteredBlades.forEach(blade => {
+                const option = document.createElement('option');
+                option.value = blade.name;
+                option.textContent = `${blade.name} (${blade.construction}, ${blade.type})`;
+                bladeSelect.appendChild(option);
+            });
+
+            filteredRubbers.forEach(rubber => {
+                const option = document.createElement('option');
+                option.value = rubber.name;
+                option.textContent = `${rubber.name} (${rubber.hardness})`;
+                rubberSelect.appendChild(option);
+            });
+        }
+        
+        function showExampleCombination(bladeName, rubberName) {
+            document.getElementById('bladeSelect').value = bladeName;
+            document.getElementById('rubberSelect').value = rubberName;
+            analyzeCombination();
+        }
+
+        function createMetricElement(title, value, color, barWidth) {
+            return `
+                <div class="p-4 bg-white rounded-xl shadow-md">
+                    <p class="text-sm font-semibold text-gray-500">${title}</p>
+                    <div class="h-6 mt-2 rounded-lg bg-gray-200 overflow-hidden">
+                        <div class="h-full ${color}" style="width: ${barWidth}%;"></div>
+                    </div>
+                    <p class="mt-2 text-xl font-bold">${value}</p>
+                </div>
+            `;
+        }
+
+        function analyzeCombination() {
+            const selectedBladeName = document.getElementById('bladeSelect').value;
+            const selectedRubberName = document.getElementById('rubberSelect').value;
+            const resultDiv = document.getElementById('result');
+            const metricsContainer = document.getElementById('metricsContainer');
+            const storeLink = document.getElementById('storeLink');
+
+            const blade = blades.find(b => b.name === selectedBladeName);
+            const rubber = rubbers.find(r => r.name === selectedRubberName);
+
+            if (!blade || !rubber) {
+                resultDiv.classList.add('hidden');
+                return;
+            }
+
+            resultDiv.classList.remove('hidden');
+
+            const combinedSpeed = ((blade.speed + rubber.speed) / 2).toFixed(1);
+            const combinedSpin = ((blade.spin + rubber.spin) / 2).toFixed(1);
+            const combinedControl = ((blade.control + rubber.control) / 2).toFixed(1);
+            const totalPrice = (blade.price + rubber.price * 2).toFixed(0);
+            const totalWeight = (blade.weight + rubber.weight * 2).toFixed(0);
+
+            let metricsHtml = '';
+            metricsHtml += createMetricElement('Geschwindigkeit', combinedSpeed, 'bg-brand-red', combinedSpeed * 10);
+            metricsHtml += createMetricElement('Spin', combinedSpin, 'bg-brand-blue', combinedSpin * 10);
+            metricsHtml += createMetricElement('Kontrolle', combinedControl, 'bg-green-500', combinedControl * 10);
+            metricsHtml += createMetricElement('Preis', `${totalPrice}€`, 'bg-yellow-500', 100);
+            metricsHtml += createMetricElement('Gewicht', `${totalWeight}g`, 'bg-gray-700', 100);
+
+            metricsContainer.innerHTML = metricsHtml;
+
+            const commentaryDiv = document.getElementById('commentary');
+            let commentary = "";
+            if (combinedSpeed > 9.5 && combinedSpin > 9.5) {
+                commentary = "Diese Kombination bietet höchste Geschwindigkeit und Spin für Topspins und Blockschläge. Ideal für fortgeschrittene Angriffsspieler, die höchste Präzision suchen.";
+            } else if (combinedSpeed > 9.0 && combinedControl > 8.5) {
+                commentary = "Eine ausgezeichnete Wahl für Spieler, die ein starkes Offensivspiel spielen möchten, ohne die Kontrolle zu verlieren. Geeignet für ein modernes, vielseitiges Angriffsspiel.";
+            } else if (combinedControl > 9.0 && combinedSpin > 9.0) {
+                commentary = "Diese Kombination ist ideal für kontrollierte Topspins und Aufschlag-Rückschlag-Spiele. Perfekt für Spieler, die den Ball gerne im Spiel halten, spinreiche Aufschläge machen und im Ballwechsel mit Topspins dominieren.";
+            } else if (combinedControl > 9.5 && combinedSpeed < 8.0) {
+                commentary = "Diese Konfiguration ist für Abwehrspieler oder Spieler konzipiert, die das Spiel kontrollieren möchten. Es ist sehr einfach, den Ball zu lenken, zu blocken und in der Defensive zu bleiben.";
+            } else if (combinedSpeed > 8.5 && combinedSpin > 8.5 && combinedControl > 8.5) {
+                commentary = "Bietet einen ausgewogenen und vielseitigen Spielstil. Eine gute Wahl für Spieler, die sowohl angreifen als auch verteidigen können und jeden Bereich ihres Spiels verbessern möchten.";
+            } else {
+                 commentary = "Diese Kombination eignet sich zur Erlernung grundlegender Schläge und zur Verbesserung der Ballkontrolle. Eine ausgewogene Wahl für Anfänger und fortgeschrittene Spieler.";
+            }
+            commentaryDiv.textContent = commentary;
+
+            // Online-Shop-Link generieren
+            const searchQuery = encodeURIComponent(`${blade.name} ${rubber.name}`);
+            storeLink.href = `https://www.google.com/search?q=${searchQuery}+tischtennis+shop`;
+
+            animateTrajectory(combinedSpeed, combinedSpin);
+        }
+        
+        function addToFavorites() {
+            const selectedBladeName = document.getElementById('bladeSelect').value;
+            const selectedRubberName = document.getElementById('rubberSelect').value;
+            const blade = blades.find(b => b.name === selectedBladeName);
+            const rubber = rubbers.find(r => r.name === selectedRubberName);
+
+            const newItem = { blade, rubber };
+            const isDuplicate = favorites.some(item => 
+                item.blade.name === newItem.blade.name && item.rubber.name === newItem.rubber.name
+            );
+
+            if (!isDuplicate) {
+                favorites.push(newItem);
+                renderFavorites();
+            }
+        }
+
+        function removeFromFavorites(index) {
+            favorites.splice(index, 1);
+            renderFavorites();
+        }
+
+        function renderFavorites() {
+            const favoritesSection = document.getElementById('favorites-section');
+            const favoritesList = document.getElementById('favorites-list');
+            const compareButton = document.getElementById('compare-button');
+
+            favoritesList.innerHTML = '';
+            if (favorites.length === 0) {
+                favoritesSection.classList.add('hidden');
+                return;
+            }
+
+            favoritesSection.classList.remove('hidden');
+            favorites.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.className = 'p-4 bg-white rounded-xl shadow-md flex justify-between items-center transition favorites-list-item';
+                li.innerHTML = `
+                    <div>
+                        <p class="font-bold text-lg">${item.blade.name} + ${item.rubber.name}</p>
+                        <p class="text-sm text-gray-500">Geschw: ${((item.blade.speed + item.rubber.speed) / 2).toFixed(1)}, Spin: ${((item.blade.spin + item.rubber.spin) / 2).toFixed(1)}, Kontrolle: ${((item.blade.control + item.rubber.control) / 2).toFixed(1)}</p>
+                    </div>
+                    <button onclick="removeFromFavorites(${index})" class="text-red-500 hover:text-red-700 transition">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                `;
+                favoritesList.appendChild(li);
+            });
+
+            if (favorites.length >= 2) {
+                compareButton.classList.remove('hidden');
+            } else {
+                compareButton.classList.add('hidden');
+            }
+        }
+
+        function compareFavorites() {
+            const comparisonTableContainer = document.getElementById('comparison-table-container');
+            const comparisonTableBody = document.getElementById('comparison-table-body');
+            comparisonTableBody.innerHTML = '';
+
+            favorites.forEach(item => {
+                const combinedSpeed = ((item.blade.speed + item.rubber.speed) / 2).toFixed(1);
+                const combinedSpin = ((item.blade.spin + item.rubber.spin) / 2).toFixed(1);
+                const combinedControl = ((item.blade.control + item.rubber.control) / 2).toFixed(1);
+                const totalPrice = (item.blade.price + item.rubber.price * 2).toFixed(0);
+                const totalWeight = (item.blade.weight + item.rubber.weight * 2).toFixed(0);
+
+                const row = document.createElement('tr');
+                row.className = 'text-center border-b border-gray-200 last:border-0';
+                row.innerHTML = `
+                    <td class="p-2 font-semibold text-left">${item.blade.name} + ${item.rubber.name}</td>
+                    <td class="p-2">${combinedSpeed}</td>
+                    <td class="p-2">${combinedSpin}</td>
+                    <td class="p-2">${combinedControl}</td>
+                    <td class="p-2">${totalPrice}€</td>
+                    <td class="p-2">${totalWeight}g</td>
+                `;
+                comparisonTableBody.appendChild(row);
+            });
+            comparisonTableContainer.classList.remove('hidden');
+        }
+
+        function animateTrajectory(speed, spin) {
+            const canvas = document.getElementById('trajectoryCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            
+            const tableWidth = canvas.width;
+            const tableHeight = canvas.height;
+            const startX = 20;
+            const startY = tableHeight - 20;
+            const endX = tableWidth - 20;
+            const endY = tableHeight - 20;
+            
+            const arcHeight = (10.0 - speed) * 4 + (spin * 3.5);
+            const controlPointY = startY - arcHeight;
+            const controlPointX = tableWidth / 2;
+
+            const refSpeed = 7.5; 
+            const refSpin = 8.5;  
+            const refArcHeight = (10.0 - refSpeed) * 4 + (refSpin * 3.5);
+            const refControlPointY = startY - refArcHeight;
+
+            let animationProgress = 0;
+            const animationDuration = 1000;
+
+            function drawFrame(timestamp) {
+                if (!timestamp) {
+                    animationId = requestAnimationFrame(drawFrame);
+                    return;
+                }
+
+                if (!startTime) {
+                    startTime = timestamp;
+                }
+                const elapsed = timestamp - startTime;
+                animationProgress = elapsed / animationDuration;
+
+                if (animationProgress > 1) {
+                    animationProgress = 1;
+                }
+
+                ctx.clearRect(0, 0, tableWidth, tableHeight);
+
+                ctx.beginPath();
+                ctx.setLineDash([5, 5]);
+                ctx.moveTo(startX, startY);
+                ctx.quadraticCurveTo(controlPointX, refControlPointY, endX, endY);
+                ctx.strokeStyle = '#9ca3af';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.setLineDash([]);
+                ctx.moveTo(startX, startY);
+                ctx.quadraticCurveTo(controlPointX, controlPointY, endX, endY);
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                const x = (1 - animationProgress) * (1 - animationProgress) * startX + 2 * (1 - animationProgress) * animationProgress * controlPointX + animationProgress * animationProgress * endX;
+                const y = (1 - animationProgress) * (1 - animationProgress) * startY + 2 * (1 - animationProgress) * animationProgress * controlPointY + animationProgress * animationProgress * endY;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, 8, 0, 2 * Math.PI);
+                ctx.fillStyle = '#dc2626';
+                ctx.fill();
+
+                if (animationProgress < 1) {
+                    animationId = requestAnimationFrame(drawFrame);
+                } else {
+                    startTime = null;
+                }
+            }
+            let startTime = null;
+            animationId = requestAnimationFrame(drawFrame);
+        }
+
+        window.onload = () => {
+            populateSelects();
+            document.getElementById('bladeSearch').addEventListener('input', populateSelects);
+            document.getElementById('bladeSort').addEventListener('change', populateSelects);
+            document.getElementById('rubberSearch').addEventListener('input', populateSelects);
+            document.getElementById('rubberSort').addEventListener('change', populateSelects);
+        };
+    </script>
+</body>
+</html>
